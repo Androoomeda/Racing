@@ -24,9 +24,10 @@ public class UI : MonoBehaviour
     {
         PlayerController playerController = player.GetComponent<PlayerController>();
         PlayerStats playerStats = player.GetComponent<PlayerStats>();
+        Rigidbody playerRb = player.GetComponent<Rigidbody>();
 
         playerStats.timer = 0f;
-        playerController.moveDirection = Vector3.zero;
+        playerRb.velocity = Vector3.zero;
         player.transform.position = playerController.start;
 
         Resume();

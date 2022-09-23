@@ -36,6 +36,14 @@ public class PlayerController : MonoBehaviour
 
     private void CheckInput()
     {
+        CheckTouches();
+#if UNITY_EDITOR
+        CheckClickes();
+#endif
+    }
+
+    private void CheckTouches()
+    {
         if (Input.touchCount > 0 && !UI.pause)
         {
             Touch touch = Input.GetTouch(0);
@@ -68,6 +76,40 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void CheckClickes()
+    {
+        if (Input.GetMouseButton(0) && !UI.pause)
+        {
+            Vector2 mousePos = Input.mousePosition;
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                touchStartPos = mousePos;
+            }
+            if (mousePos.y > Screen.height / 2 || touchStartPos.y > Screen.height / 2)
+            {
+                moveDirection = Vector3.zero;
+                UpdateStrengthProgress();
+                lineRenderer.SetPosition(1, Vector3.zero);
+                return;
+            }
+
+            if (mousePos.y <= touchStartPos.y)
+                moveDirection = touchStartPos - mousePos;
+
+            if (moveDirection.magnitude <= maxTensionStrength)
+            {
+                int strengthProgress = UpdateStrengthProgress();
+                ShowTrajectory(strengthProgress);
+            }
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            lastPos = transform.position;
+            MoveCar();
+        }
+    }
+
     private int UpdateStrengthProgress()
     {
         int progress = Mathf.RoundToInt(moveDirection.magnitude / maxTensionStrength * 100);
@@ -95,7 +137,7 @@ public class PlayerController : MonoBehaviour
     {
         if(transform.position.y < loseZone.position.y)
         {
-            moveDirection = Vector3.zero;
+            rb.velocity = Vector3.zero;
             transform.rotation = Quaternion.Euler(Vector3.zero);
             transform.position = lastPos;
         }
